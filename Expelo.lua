@@ -1,6 +1,7 @@
 Expelo = { 
     UI = { },
     events = { },
+    cmds = { },
     totalExp = 0,
     intervalStartTime = 0, 
     elapsedTime = 0,
@@ -19,6 +20,12 @@ function Expelo:init()
         Expelo:OnEvent(_, event, ...);
     end);
 
+    SLASH_OPEN1 = "/xp";
+    SlashCmdList.OPEN = Expelo.cmds.OPEN;
+
+    SLASH_EXPDEBUG1 = "/xpdebug";
+    SlashCmdList.EXPDEBUG = Expelo.cmds.DEBUG;
+
     Expelo:Reset();
 end
 
@@ -26,6 +33,19 @@ end
 function Expelo:OnEvent(_, event, ...)
     if (Expelo.events[event]) then
         Expelo.events[event](self, ...);
+    end
+end
+
+function Expelo.cmds:OPEN()
+    Expelo.UI.rootFrame:Show();
+end
+
+function Expelo.cmds:DEBUG()
+    debug = not debug;
+    if (debug) then
+        print("Debug statements for Expelorometer turned on!");
+    else
+        print("Debug statements for Expelorometer turned off!");
     end
 end
 
@@ -46,13 +66,10 @@ function Expelo.events:CHAT_MSG_COMBAT_XP_GAIN(text)
 end
 
 function Expelo.events:CHAT_MSG_SYSTEM(text)
-    if (debug) then
-        print("chat msg system fired, text: " .. text);
-    end
     local gainedExp = string.match(text, "(%d+) experience");
     if (gainedExp) then
         if (debug) then
-            print("Exp found: " .. gainedExp);
+            print("Exp found from chat_msg_system: " .. gainedExp);
         end
         Expelo:UpdateExp(gainedExp);
     end
