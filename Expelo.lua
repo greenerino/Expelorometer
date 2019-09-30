@@ -7,7 +7,7 @@ Expelo = {
     recording = false,
 }
 
-local debug = false;
+local debug = true;
 
 function Expelo:init()
     Expelo:BuildWindow();
@@ -36,22 +36,40 @@ function Expelo.events:ADDON_LOADED(addon)
 end
 
 function Expelo.events:CHAT_MSG_COMBAT_XP_GAIN(text)
+    if (debug) then
+        print("xp from kill detected");
+    end
     if (Expelo.recording) then
-        local _, gainedExp = string.match(text, "(.+) dies, you gain (%d+) experience");
+        local gainedExp = string.match(text, "gain (%d+) experience");
         Expelo:UpdateExp(gainedExp);
     end
 end
 
-function Expelo.events:QUEST_TURNED_IN(...)
+function Expelo.events:CHAT_MSG_SYSTEM(text)
     if (debug) then
-        print("Quest turn in detected.");
-        print("Args: " .. ...);
+        print("chat msg system fired, text: " .. text);
     end
-    if (Expelo.recording) then
-        local _, gainedExp, _ = ...;
+    local gainedExp = string.match(text, "(%d+) experience");
+    if (gainedExp) then
+        if (debug) then
+            print("Exp found: " .. gainedExp);
+        end
         Expelo:UpdateExp(gainedExp);
     end
 end
+
+-- TO BE REMOVED
+-- function Expelo.events:QUEST_TURNED_IN(...)
+--     return; -- TESTING IF CHAT_MSG_COMBAT_XP_GAIN IS ENOUGH
+--     -- if (debug) then
+--     --     print("Quest turn in detected.");
+--     --     print("Gained xp: " .. (select(2, ...)))
+--     -- end
+--     -- if (Expelo.recording) then
+--     --     local gainedExp = (select(2, ...));
+--     --     Expelo:UpdateExp(gainedExp);
+--     -- end
+-- end
 
 -- Resets all stats to 0, ready to begin recording again
 function Expelo:Reset()
@@ -65,7 +83,7 @@ end
 function Expelo:Record()
     if (Expelo.recording) then
         Expelo.recording = false;
-        Expelo:UpdateTime();
+        Expelo:UpdateExp(0);
         Expelo.UI.recordButton:SetText("Start");
     else
         Expelo.recording = true;
