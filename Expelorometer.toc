@@ -1,0 +1,7 @@
+## Interface: 11302
+## Title: Expelorometer
+## Notes: A very simple experience tracker, tracking xp/hr and level%/hr. V0.1
+## Author: Greenerino
+## Version: 0.1
+
+Expelo.lua
