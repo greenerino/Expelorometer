@@ -1,6 +1,7 @@
 Expelo = { 
     UI = { },
     events = { },
+    cmds = { },
     totalExp = 0,
     intervalStartTime = 0, 
     elapsedTime = 0,
@@ -19,6 +20,12 @@ function Expelo:init()
         Expelo:OnEvent(_, event, ...);
     end);
 
+    SLASH_OPEN1 = "/xp";
+    SlashCmdList.OPEN = Expelo.cmds.OPEN;
+
+    SLASH_EXPDEBUG1 = "/xpdebug";
+    SlashCmdList.EXPDEBUG = Expelo.cmds.DEBUG;
+
     Expelo:Reset();
 end
 
@@ -29,6 +36,19 @@ function Expelo:OnEvent(_, event, ...)
     end
 end
 
+function Expelo.cmds:OPEN()
+    Expelo.UI.rootFrame:Show();
+end
+
+function Expelo.cmds:DEBUG()
+    debug = not debug;
+    if (debug) then
+        print("Debug statements for Expelorometer turned on!");
+    else
+        print("Debug statements for Expelorometer turned off!");
+    end
+end
+
 function Expelo.events:ADDON_LOADED(addon)
     if (addon == "Expelorometer" and debug) then
         print("Expelorometer loaded!");
@@ -36,22 +56,37 @@ function Expelo.events:ADDON_LOADED(addon)
 end
 
 function Expelo.events:CHAT_MSG_COMBAT_XP_GAIN(text)
+    if (debug) then
+        print("xp from kill detected");
+    end
     if (Expelo.recording) then
-        local _, gainedExp = string.match(text, "(.+) dies, you gain (%d+) experience");
+        local gainedExp = string.match(text, "gain (%d+) experience");
         Expelo:UpdateExp(gainedExp);
     end
 end
 
-function Expelo.events:QUEST_TURNED_IN(...)
-    if (debug) then
-        print("Quest turn in detected.");
-        print("Args: " .. ...);
-    end
-    if (Expelo.recording) then
-        local _, gainedExp, _ = ...;
+function Expelo.events:CHAT_MSG_SYSTEM(text)
+    local gainedExp = string.match(text, "(%d+) experience");
+    if (gainedExp) then
+        if (debug) then
+            print("Exp found from chat_msg_system: " .. gainedExp);
+        end
         Expelo:UpdateExp(gainedExp);
     end
 end
+
+-- TO BE REMOVED
+-- function Expelo.events:QUEST_TURNED_IN(...)
+--     return; -- TESTING IF CHAT_MSG_COMBAT_XP_GAIN IS ENOUGH
+--     -- if (debug) then
+--     --     print("Quest turn in detected.");
+--     --     print("Gained xp: " .. (select(2, ...)))
+--     -- end
+--     -- if (Expelo.recording) then
+--     --     local gainedExp = (select(2, ...));
+--     --     Expelo:UpdateExp(gainedExp);
+--     -- end
+-- end
 
 -- Resets all stats to 0, ready to begin recording again
 function Expelo:Reset()
@@ -65,7 +100,7 @@ end
 function Expelo:Record()
     if (Expelo.recording) then
         Expelo.recording = false;
-        Expelo:UpdateTime();
+        Expelo:UpdateExp(0);
         Expelo.UI.recordButton:SetText("Start");
     else
         Expelo.recording = true;
@@ -158,7 +193,13 @@ function Expelo:UpdateExp(gainedExp)
     if (debug) then
         print("xprate: " .. xpRate);
     end
-    local percentRate = (xpRate / maxExp) * 100;
+
+    local percentRate = -1 
+    if (maxExp == 0) then
+        percentRate = 0;
+    else
+        percentRate = (xpRate / maxExp) * 100;
+    end
     Expelo.UI.rootFrame.xpRateText:SetText(xpRate .. " xp/hr");
     Expelo.UI.rootFrame.percentRate:SetText(string.format("%.1f", percentRate) .. " %/hr");
 end
