@@ -7,3 +7,4 @@ If you wish to install this addon, simply download the source code (only need th
 ## Known Issues and ToDos
 * Actual gameplay testing to be done tonight
 * Currently only updates rates when exp comes in. Planning to have it update every x seconds, e.g. 5 seconds.
+* Save rates upon logout
