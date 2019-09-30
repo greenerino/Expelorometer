@@ -8,7 +8,7 @@ Expelo = {
     recording = false,
 }
 
-local debug = true;
+local debug = false;
 
 function Expelo:init()
     Expelo:BuildWindow();
