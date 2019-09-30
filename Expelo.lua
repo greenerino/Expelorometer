@@ -193,7 +193,13 @@ function Expelo:UpdateExp(gainedExp)
     if (debug) then
         print("xprate: " .. xpRate);
     end
-    local percentRate = (xpRate / maxExp) * 100;
+
+    local percentRate = -1 
+    if (maxExp == 0) then
+        percentRate = 0;
+    else
+        percentRate = (xpRate / maxExp) * 100;
+    end
     Expelo.UI.rootFrame.xpRateText:SetText(xpRate .. " xp/hr");
     Expelo.UI.rootFrame.percentRate:SetText(string.format("%.1f", percentRate) .. " %/hr");
 end
