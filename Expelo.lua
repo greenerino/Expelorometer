@@ -9,6 +9,7 @@ Expelo = {
 }
 
 local debug = false;
+local refreshRate = 1; --Periodic update time in seconds
 
 function Expelo:init()
     Expelo:BuildWindow();
@@ -75,19 +76,6 @@ function Expelo.events:CHAT_MSG_SYSTEM(text)
     end
 end
 
--- TO BE REMOVED
--- function Expelo.events:QUEST_TURNED_IN(...)
---     return; -- TESTING IF CHAT_MSG_COMBAT_XP_GAIN IS ENOUGH
---     -- if (debug) then
---     --     print("Quest turn in detected.");
---     --     print("Gained xp: " .. (select(2, ...)))
---     -- end
---     -- if (Expelo.recording) then
---     --     local gainedExp = (select(2, ...));
---     --     Expelo:UpdateExp(gainedExp);
---     -- end
--- end
-
 -- Resets all stats to 0, ready to begin recording again
 function Expelo:Reset()
     Expelo.totalExp = 0;
@@ -106,6 +94,18 @@ function Expelo:Record()
         Expelo.recording = true;
         Expelo.intervalStartTime = time();
         Expelo.UI.recordButton:SetText("Stop");
+        Expelo:PeriodicUpdate();
+    end
+end
+
+-- Function called every refreshRate seconds (defined at top), called from Expelo:Record().
+function Expelo:PeriodicUpdate()
+    if (debug) then
+        print("periodic update");
+    end
+    if (Expelo.recording) then 
+        Expelo:UpdateExp(0);
+        C_Timer.After(refreshRate, Expelo.PeriodicUpdate);
     end
 end
 
