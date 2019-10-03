@@ -68,7 +68,7 @@ end
 
 function Expelo.events:CHAT_MSG_SYSTEM(text)
     local gainedExp = string.match(text, "(%d+) experience");
-    if (gainedExp) then
+    if (gainedExp and Expelo.recording) then
         if (debug) then
             print("Exp found from chat_msg_system: " .. gainedExp);
         end
